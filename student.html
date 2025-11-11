@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bus Tracker - Student View</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+  #map {
+    height: 80vh;
+    width: 90%;
+    max-width: 800px;
+    margin: 10px auto;
+    border-radius: 10px;
+  }
+
+  /* Mobile optimization */
+  @media (max-width: 768px) {
+    #map {
+      width: 100%;
+      height: 70vh; /* slightly smaller height for mobile */
+      margin-top: 5px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    #map {
+      height: 65vh; /* better fit for small phones */
+    }
+  }
+</style>
+
+</head>
+<body style="text-align:center;">
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC6i1nzqiQE6nlDaqW84F4OQHBB5ABFngI",
+      authDomain: "Ybus-tracking-45cb9.firebaseapp.com",
+      databaseURL: "https://bus-tracking-45cb9-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "bus-tracking-45cb9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Initialize map
+    const map = L.map("map").setView([28.61, 77.23], 13);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
+
+    let marker = null;
+
+    // Listen for bus location changes
+    const locationRef = ref(db, "bus/location");
+    onValue(locationRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const { lat, lng } = data;
+
+        if (!marker) {
+          marker = L.marker([lat, lng]).addTo(map);
+        } else {
+          marker.setLatLng([lat, lng]);
+        }
+
+        map.setView([lat, lng], 15);
+      }
+    });
+  </script>
+</body>
+</html>
