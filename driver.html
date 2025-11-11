@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- <title>Bus Driver - Live Tracker</title> -->
+  <script type="module">
+    // Import Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    // Your Firebase config (replace with your own)
+    const firebaseConfig = {
+      apiKey: "AIzaSyC6i1nzqiQE6nlDaqW84F4OQHBB5ABFngI",
+      authDomain: "Ybus-tracking-45cb9.firebaseapp.com",
+      databaseURL: "https://bus-tracking-45cb9-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "bus-tracking-45cb9"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Get and update location
+    if ("geolocation" in navigator) {
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          console.log("Updating bus location:", latitude, longitude);
+
+          // Save to Firebase
+          set(ref(db, "bus/location"), {
+            lat: latitude,
+            lng: longitude,
+            timestamp: Date.now()
+          });
+        },
+        (err) => console.error("Error getting location:", err),
+        { enableHighAccuracy: true }
+      );
+    } else {
+      alert("Geolocation not supported by your browser");
+    }
+  </script>
+</head>
+<body style="text-align:center;">
+  <!-- <h1>🚌 Bus Driver Panel</h1>
+  <p>Sharing your live location...</p> -->
+</body>
+</html>
